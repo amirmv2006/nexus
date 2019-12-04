@@ -1,0 +1,47 @@
+#################################################################
+# Functions for Managing Sonatype Nexus                         #
+#                                                               #
+# Authors:                                                      #
+# - Jorge Morales        https://github.com/jorgemoralespou     #
+# - Siamak Sadeghianfar  https://github.com/siamaksade          #
+#                                                               #
+#################################################################
+
+#
+# add_nexus3_redhat_repos [nexus-username] [nexus-password] [nexus-url]
+#
+function add_nexus3_redhat_repos() {
+  local _NEXUS_USER=$1
+  local _NEXUS_PWD=$2
+  local _NEXUS_URL=$3
+
+  #add_nexus3_raw_repo MPS http://download.jetbrains.com/mps $_NEXUS_USER $_NEXUS_PWD $_NEXUS_URL
+  add_nexus3_raw_repo MPS http://localhost:8081/repository/MPS/ $_NEXUS_USER $_NEXUS_PWD $_NEXUS_URL
+}
+
+#
+# add_nexus3_repo [repo-id] [repo-url] [nexus-username] [nexus-password] [nexus-url]
+#
+function add_nexus3_raw_repo() {
+  local _REPO_ID=$1
+  local _REPO_URL=$2
+  local _NEXUS_USER=$3
+  local _NEXUS_PWD=$4
+  local _NEXUS_URL=$5
+
+  read -r -d '' _REPO_JSON << EOM
+{
+  "name": "$_REPO_ID",
+  "type": "groovy",
+  "content": "repository.createRawProxy('$_REPO_ID','$_REPO_URL')"
+}
+EOM
+
+  # Pre Nexus 3.8
+  curl -v -H "Accept: application/json" -H "Content-Type: application/json" -d "$_REPO_JSON" -u "$_NEXUS_USER:$_NEXUS_PWD" "${_NEXUS_URL}/service/siesta/rest/v1/script/"
+  curl -v -X POST -H "Content-Type: text/plain" -u "$_NEXUS_USER:$_NEXUS_PWD" "${_NEXUS_URL}/service/siesta/rest/v1/script/$_REPO_ID/run"
+
+  # Post Nexus 3.8
+  curl -v -H "Accept: application/json" -H "Content-Type: application/json" -d "$_REPO_JSON" -u "$_NEXUS_USER:$_NEXUS_PWD" "${_NEXUS_URL}/service/rest/v1/script/"
+  curl -v -X POST -H "Content-Type: text/plain" -u "$_NEXUS_USER:$_NEXUS_PWD" "${_NEXUS_URL}/service/rest/v1/script/$_REPO_ID/run"
+}
