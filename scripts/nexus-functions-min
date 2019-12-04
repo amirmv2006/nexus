@@ -15,8 +15,8 @@ function add_nexus3_redhat_repos() {
   local _NEXUS_PWD=$2
   local _NEXUS_URL=$3
 
-  #add_nexus3_raw_repo MPS http://download.jetbrains.com/mps $_NEXUS_USER $_NEXUS_PWD $_NEXUS_URL
-  add_nexus3_raw_repo MPS http://localhost:8081/repository/MPS/ $_NEXUS_USER $_NEXUS_PWD $_NEXUS_URL
+  add_nexus3_raw_repo MPS http://download.jetbrains.com/mps $_NEXUS_USER $_NEXUS_PWD $_NEXUS_URL
+  
 }
 
 #
